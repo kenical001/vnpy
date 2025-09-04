@@ -200,7 +200,7 @@ class BarGenerator:
         if self.interval == Interval.DAILY and not self.daily_end:
             raise RuntimeError(_("合成日K线必须传入每日收盘时间"))
 
-    def update_tick(self, tick: TickData) -> None:
+    def update_tick(self, tick: TickData, is_end_tick: bool = False) -> None:
         """
         Update new tick data into generator.
         """
@@ -211,7 +211,36 @@ class BarGenerator:
             return
 
         if not self.bar:
+            #ignore end tick when not self.bar
+            if is_end_tick:   
+                return
             new_minute = True
+        elif is_end_tick:
+            self.bar.high_price = max(self.bar.high_price, tick.last_price)
+            if self.last_tick and tick.high_price > self.last_tick.high_price:
+                self.bar.high_price = max(self.bar.high_price, tick.high_price)
+
+            self.bar.low_price = min(self.bar.low_price, tick.last_price)
+            if self.last_tick and tick.low_price < self.last_tick.low_price:
+                self.bar.low_price = min(self.bar.low_price, tick.low_price)
+
+            self.bar.close_price = tick.last_price
+            self.bar.open_interest = tick.open_interest
+            self.bar.datetime = self.bar.datetime.replace(
+                second=0, microsecond=0
+            )
+            if self.last_tick:
+                volume_change: float = tick.volume - self.last_tick.volume
+                self.bar.volume += max(volume_change, 0)
+
+                turnover_change: float = tick.turnover - self.last_tick.turnover
+                self.bar.turnover += max(turnover_change, 0)
+
+            self.last_tick = tick
+            self.on_bar(self.bar)
+            self.bar = None
+            return
+
         elif (
             (self.bar.datetime.minute != tick.datetime.minute)
             or (self.bar.datetime.hour != tick.datetime.hour)

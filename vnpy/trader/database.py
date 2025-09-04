@@ -96,6 +96,19 @@ class BaseDatabase(ABC):
         pass
 
     @abstractmethod
+    def load_last_tick_data(
+        self,
+        symbol: str,
+        exchange: Exchange,
+        start: datetime,
+        end: datetime
+    ) -> TickData:
+        """
+        Load last tick data from database.
+        """
+        pass
+
+    @abstractmethod
     def delete_bar_data(
         self,
         symbol: str,
