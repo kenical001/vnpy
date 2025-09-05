@@ -109,6 +109,22 @@ class BarData(BaseData):
 
 
 @dataclass
+class MainContract(BaseData):
+    """
+    main contract data.
+    """
+
+    trade_date: Datetime | None = None
+    product: str = ""
+    symbol: str = ""
+    exchange: Exchange | None = None
+
+    def __post_init__(self) -> None:
+        """"""
+        self.vt_symbol: str = f"{self.symbol}.{self.exchange.value}"
+
+
+@dataclass
 class OrderData(BaseData):
     """
     Order data contains information for tracking lastest status

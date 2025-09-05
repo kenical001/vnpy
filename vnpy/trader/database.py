@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from importlib import import_module
 
 from .constant import Interval, Exchange
-from .object import BarData, TickData
+from .object import BarData, TickData, MainContract
 from .setting import SETTINGS
 from .utility import ZoneInfo
 from .locale import _
@@ -145,6 +145,19 @@ class BaseDatabase(ABC):
         """
         pass
 
+    @abstractmethod
+    def save_main_contract_data(self, data: list[MainContract]) -> bool:
+        """
+        Save main contract data into database.
+        """
+        pass
+
+    @abstractmethod
+    def load_main_contract_data(self, product: str, exchange: Exchange, start: datetime, end: datetime) -> list[MainContract]:
+        """
+        Return main contract data from database.
+        """
+        pass
 
 database: BaseDatabase | None = None
 
