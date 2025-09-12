@@ -146,6 +146,19 @@ class BaseDatabase(ABC):
         pass
 
     @abstractmethod
+    def delete_bar_by_datetime(
+        self,
+        symbol: str,
+        exchange: Exchange,
+        interval: Interval,
+        dt: datetime
+    ) -> bool:
+        """
+        Delete bar data with given symbol + exchange + interval + datetime.
+        """
+        pass
+
+    @abstractmethod
     def get_bar_overview(self) -> list[BarOverview]:
         """
         Return bar data avaible in database.
